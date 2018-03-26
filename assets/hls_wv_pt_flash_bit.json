@@ -1,0 +1,14 @@
+{
+    "source": {
+        "hls": "http://d2c-vod.cdn.turner.com/f57eb753939d4b7f99046715118597de00000000/master_pt_de.m3u8?hdnts=st=1508510476~exp=1511102476~acl=/f57eb753939d4b7f99046715118597de00000000/*~hmac=03545342dfd330dbfff920829d056ef1c4c28d22191d357db18203cfd6ce45fa",
+        "drm": {}
+    },
+    "playback" : {
+      "preferredTech": [
+          {
+            "player": "flash",
+            "streaming": "hls"
+        }
+    ]
+    }
+}

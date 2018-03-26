@@ -1,0 +1,28 @@
+{
+    "source": {
+        "dash": "https://testqa.s3.amazonaws.com/dvp/samples/20180315/turner/dash/007/cmaf/master.mpd",
+        "drm": {
+            "widevine": {
+                "LA_URL": "https://widevine.license.istreamplanet.com/widevine/api/license/fcc807bc-7949-4adf-8dc6-274867a31250",
+                "headers": [{
+                    "name": "x-isp-token",
+                    "value": ""
+                }]
+            },
+            "primetime": {
+
+            },
+            "playready": {
+                "LA_URL": "https://playready.license.istreamplanet.com/api/license"
+            }
+        }
+    },
+    "playback" : {
+          "preferredTech": [
+              {
+                  "player": "html5",
+                  "streaming": "dash"
+            }
+        ]
+    }
+}

@@ -1,0 +1,30 @@
+{
+	"playlist" : [{
+        "sources": [{
+                "file": "http://tve-vod.cdn.turner.com/tbs/fe5da5858dc25d37d7c45e6584e2300400000000/master_fp_de.m3u8?hdnts=exp=1515513612~acl=/*~hmac=63c92a5c57bfb21ef6dd72300ccfbc1e5c69da5a443632d3b0683fcb3d9cee67",
+                "drm": {
+                    "fairplay": {
+                        "url": "https://fairplay.license.istreamplanet.com/api/AppCert/fcc807bc-7949-4adf-8dc6-274867a31250"
+                    }
+                },
+                "type": "hls"
+            },{
+                "file": "http://tve-vod.cdn.turner.com/tbs/fe5da5858dc25d37d7c45e6584e2300400000000/master_wv_de.m3u8?hdnts=exp=1515513612~acl=/*~hmac=63c92a5c57bfb21ef6dd72300ccfbc1e5c69da5a443632d3b0683fcb3d9cee67",
+                "drm": {
+                    "widevine": {
+                        "url": "https://widevine-stage.license.istreamplanet.com/widevine/api/license/a229afbf-e1d3-499e-8127-c33cd7231e58"
+                    }
+                },
+                "type": "hls"
+            },{
+                "file": "http://tve-vod.cdn.turner.com/tbs/fe5da5858dc25d37d7c45e6584e2300400000000/master_pt_de.m3u8?hdnts=exp=1515513612~acl=/*~hmac=63c92a5c57bfb21ef6dd72300ccfbc1e5c69da5a443632d3b0683fcb3d9cee67",
+                "drm": {
+                    "primetime": {
+                        "url": "http://primetime.license.istreamplanet.com/a229afbf-e1d3-499e-8127-c33cd7231e58/e500d8d43f8549a6aac8cb00cfb5774700000000/flashaccess/license/v6"
+                    }
+                },
+                "type": "hls"
+            }
+        ]
+    }]
+}

@@ -1,0 +1,10 @@
+{
+    "source": {
+        "hls": "https://d2rghg6apqy7xc.cloudfront.net/dvp/test_fmp4_hls/002/drm/master_pr.m3u8",
+        "drm": {
+            "playready": {
+
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "source": {
+        "hls": "http://testqa.s3.amazonaws.com/dvp/samples/20180315/turner/fmp4_hls/005/mpeg_cbcs/cmaf/master_fp.m3u8",
+        "drm": {
+            "fairplay": {
+                "useUint16InitData": true,
+                "licenseResponseType": "arraybuffer",
+                "headers": [{
+                    "name": "Content-type",
+                    "value": "application/octet-binary"
+                },
+                {
+                    "name": "x-isp-token",
+                    "value": ""
+                }],
+                "certificateURL": "https://fairplay.license.istreamplanet.com/api/AppCert/fcc807bc-7949-4adf-8dc6-274867a31250",
+                "LA_URL": "https://fairplay.license.istreamplanet.com/api/license/fcc807bc-7949-4adf-8dc6-274867a31250"
+            }
+        },
+        "tracks":[{
+            "file": "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.vtt",
+            "kind": "thumbnails"
+          }]
+    }
+}

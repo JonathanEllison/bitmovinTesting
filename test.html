@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Bitmovin Testing </title>
+   <meta charset="utf-8">
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   <script type="text/javascript" src="//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer.js"></script>
+   <script src="//nexus.ensighten.com/turner/top-test/Bootstrap.js"></script>
+   <style>
+       #hlsUrl {
+           display:none
+       }
+       #dashUrl {
+           display:none
+       }
+
+   </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div  class="row">
+            <div id="playerArea" class="col"> </div>
+        <div>
+        <div class="row">
+            <div id="logger" name="logger"></div>
+        </div>
+        
+        <div id="manualSettings" class="col">
+            <label id="playlist" for="playlistType"> Playlist Type</label>
+            <select id="playlistType">
+                <option value="">  </option>
+                <option value="hls"> HLS </option>
+                <option value="dash"> Dash </option>
+            </select>
+
+            <label for="assetUrl"> Asset Url: </label>
+            <input id="assetUrl" type="input" placeholder="//{domain}/{path}/{file}" />
+
+            <label for="laUrl"> LA Url: </label>
+            <input id="laUrl" type="input" />
+        </div>
+        
+        <div id="fairplaySettings">
+            <h id="title"> Fairplay Settings </h><br />
+            <label for="useUint16InitData"> useUint16InitData </label>
+            <input id="useUint16InitData" type="checkbox" />
+
+            <label for="licenseResponseType" >License Response</label>
+            <select id="licenseResponseType">
+                <option value="arraybuffer"> arraybuffer </option>
+            </select>
+
+            <label for="certificateUrl" >Certificate Url</label>
+            <input id="certificateUrl" type="input"/>
+        </div>
+
+        <div id="webvttUrl">
+            <label for="webvtt" >WebVTT Url</label>
+            <input id="webvtt" type="input"/>
+
+            <label id="kindLabel" for="kind"> Kind </label>
+            <select id="kind">
+                <option value="">  </option>
+                <option value="thumbnails"> thumbnails </option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div id="logger" name="logger"></div>
+        </div>
+
+        <div>
+            <input id="submit" type="button" value="generate" />
+        </div>
+    </div>
+
+    <script>
+        var bitmovinPlayer = bitmovin.player("playerArea");
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var playlistType = "";
+            var playerObj = null;
+            
+            document.getElementById("submit").addEventListener("click", function(){
+
+                getSupportedDRM().then(function(drm) {
+                    
+                    var settings = {
+                        assetUrl: document.getElementById("assetUrl").value,
+                        playlistType: document.getElementById("playlistType").value,
+                        laUrl: document.getElementById("laUrl").value,
+                        webbvttUrl: document.getElementById("webvtt").value,
+                        kind: document.getElementById("kind").value
+                    }
+
+                    switch(drm) {
+                        case "fairplay": {
+
+                            settings.useUint16InitData = document.getElementById("useUint16InitData").checked;
+                            settings.licenseResponseType = document.getElementById("licenseResponseType").value
+                            settings.certificateUrl = document.getElementById("certificateUrl").value
+
+                            playerObj = generateFairplayPlayerObject(settings)
+                        }
+                        break;
+                        case "widevine": {
+
+                            playerObj = generateWidevinePlayerObject(settings)
+                        }
+                        break;
+                        case "playready": {
+                            playerObj = generatePlayreadyPlayerObject(settings)
+                        }
+                        break;
+                        default: {
+                            playerObj = generateNonDrmPlayerObject(settings)
+                        }
+                    }
+                    
+                    if(bitmovinPlayer.isReady()){
+
+                        bitmovinPlayer.destroy()
+                        bitmovinPlayer = bitmovin.player("playerArea")
+                    } 
+
+                    generatePlayer(playerObj)
+                });
+            })
+            
+        })
+        
+        function generatePlayer(configs) {
+
+            configs.logs = {
+                level: bitmovin.player.LOGLEVEL.DEBUG
+            }
+
+            configs.key = "074e66f3-f9e3-49ff-8c99-5be6fb745551"
+            configs.style = {
+                "width": "800px"
+            }
+
+            configs.events = {
+                onReady: function(data) {
+                    log("[onReady] player type: <b>" + bitmovinPlayer.getPlayerType() + "</b>")
+                },
+                onPlaying: function(data) {
+                    log("[onPlaying]");
+                },
+                onVideoPlaybackQualityChanged: function(data) {
+                    log("[bitrateChanged] new bitrate: " + data.targetQuality.bitrate)
+                },
+                onError: function(data) {
+                    log("[onError] code: " + data.code + ", message:" + data.message);
+                },
+                onAdFinished: function(data) {
+
+                },
+                onPaused: function(data) {
+                    track("Media_Paused", {})
+                },
+                onPlaybackFinished: function(data) {
+                    track("Content_Completed", {})
+                }
+            }
+            
+            // player success handler
+            var onSuccess = function(playerInstance) {
+                log('Successfully created Bitmovin Player instance');
+            };
+
+            // player failure handler
+            var onFailure = function(reason) {
+                log('Error while creating Bitmovin Player instance');
+            }
+   
+            bitmovinPlayer.setup(configs).then(onSuccess, onFailure);
+        }
+        
+        function log(s) {
+            var logOutput = document.getElementById("logger");
+            logOutput.innerHTML = s + '<br/>' + logOutput.innerHTML;
+        }
+
+        function getSupportedDRM() {
+            var drm = "";
+
+            return bitmovinPlayer.getSupportedDRM().then(function(drmSystem) {
+                if(drmSystem.find(function(element) {return element.indexOf("apple") >  -1})){
+                    drm = "fairplay"
+                } else if (drmSystem.find(function(element) { return element.indexOf("widevine") > -1 })) {
+                    drm = "widevine"
+                } else if (drmSystem.find(function(element) { return element.indexOf("playready") > -1 })) { 
+                    drm = "playready"
+                } else {
+                    drm = "flash"
+                }
+
+                return drm
+            })
+        }
+
+        function track(type, source){
+            console.log(type)
+            
+            var target = extend(source)
+            console.log(target)
+            trackVideoMetrics({
+                type: type,
+                data: target
+            });
+        }
+        
+        function extend(source) {
+            var target = getDefaultVideoMetadata();
+
+            for(var p in source) {
+                if(source.hasOwnProperty(p)) target[p] = source[p]
+            }
+
+            return target
+        }
+
+        function getDefaultVideoMetadata() {
+            return {
+                playerid: "bitmovin-player", //should be unique if there are multiple instances
+                hasScrubbed: false,
+                isTen: false,
+                isTwentyFive: false,
+                isFifty: false,
+                isSeventyFive: false,
+                isAutostart: false,
+                content_duration: 0,
+                content_dateCreated: "1/1/2017",
+                content_dateAired: "1/1/2017",
+                content_name: "video title example",
+                content_id: "video id example",
+                content_type: "clip", //clip, episode, live
+                content_showName: "show name example",
+                content_episodeName: "episode name example"
+            }
+        }
+
+        function generatePlayreadyPlayerObject(settings) {
+            var playerObj = generatePlayerObject(settings)
+
+            playerObj.source.drm.playready = {
+                // headers: [{
+                //      name: "x-isp-token",
+                //      value: ""
+                // }]
+            }
+
+            playerObj.network = {
+            preprocessHttpResponse: function(type, request) {
+                    console.info(`Type ${type}`)
+                    if (type === 'manifest/dash') {
+                        console.log("removing ac3 tracks")
+                        request.body = request.body.replace(/aac/i, 'ignore');
+                    }
+
+                    return Promise.resolve(request);
+                }
+            }
+
+            return playerObj;
+        }
+
+        function generateWidevinePlayerObject(settings) {
+
+            var playerObj = generatePlayerObject(settings)
+
+            playerObj.source.drm.widevine = {
+                LA_URL: settings.laUrl,
+                headers: [{
+                     name: "x-isp-token",
+                     value: ""
+                }]
+            }
+
+            return playerObj;
+        }
+        
+        function generateFairplayPlayerObject(settings) {
+            var playerObj = generatePlayerObject(settings)
+
+            playerObj.source.drm.fairplay = {
+                useUint16InitData: settings.useUint16InitData,
+                licenseResponseType: settings.licenseResponseType,
+
+                headers: [{
+                     name: "x-isp-token",
+                     value: ""
+                }, {
+                    name: "Content-Type",
+                    value: "application/octet-binary"
+                }],
+                certificateURL: settings.certificateUrl,
+                LA_URL: settings.laUrl,
+                prepareCertificate: function(cert) {
+                    return convertBase64StringToBuffer(cert);
+                },
+                prepareMessage: function(event) {
+                    return event.message;
+                },
+                prepareContentId: function(contentId) {
+                    return contentId.replace("skd://", "").split("/")[2];
+                },
+                prepareLicense: function(license) {
+                    return convertBase64StringToBuffer(license);
+                }
+            }
+            
+            console.log("fairplay object ", playerObj)
+            return playerObj;
+        }
+        
+        function convertBase64StringToBuffer(base64Response) {
+            var responseText = String.fromCharCode.apply(null, new Uint8Array(base64Response)).replace(/"/g, '');
+            var raw = window.atob(responseText);
+            var rawLength = raw.length;
+            var buffer = new Uint8Array(new ArrayBuffer(rawLength));
+
+            for (var i = 0; i < rawLength; i++) {
+                buffer[i] = raw.charCodeAt(i);
+            }
+
+            return buffer;
+        }
+
+        function generatePrimetimePlayerObject(settings) {
+            var playerObj = generatePlayerObject(settings)
+
+            playerObj.playback = {
+                preferredTech: [{
+                    player: "flash",
+                    streaming: "hls"
+                }]
+            }
+
+            return playerObj;
+        }
+        
+        function generateNonDrmPlayerObject(settings) {
+            var playerObj = generatePlayerObject(settings)
+
+            return playerObj;
+        }
+        
+        function generatePlayerObject(settings) {
+            var playerObj = {
+                source: {
+                    drm: {},
+                    tracks:[{
+                        file: settings.webbvttUrl,
+                        kind: settings.kind
+                    }]
+                }
+            }
+            
+            if(settings.playlistType === "hls") 
+                playerObj.source.hls = settings.assetUrl
+            else if(settings.playlistType === "dash"){
+                playerObj.source.dash = settings.assetUrl
+                playerObj.playback = {
+                    preferredTech: [
+                        {
+                            player: "html5",
+                            streaming: "dash"
+                        }
+                    ]
+                }
+            }
+            else
+                console.error("Invalid option given for playlist type")
+
+            return playerObj
+        }
+    </script>
+</body>
+</html>

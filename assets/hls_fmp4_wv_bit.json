@@ -1,0 +1,14 @@
+{
+    "source": {
+        "hls": "https://d2rghg6apqy7xc.cloudfront.net/dvp/test_fmp4_hls/002/drm/master_wv.m3u8",
+        "drm": {
+            "widevine": {
+                "LA_URL": "https://widevine.license.istreamplanet.com/widevine/api/license/fcc807bc-7949-4adf-8dc6-274867a31250",
+                "headers": [{
+                    "name": "x-isp-token",
+                    "value": ""
+                }]
+            }
+        }
+    }
+}
